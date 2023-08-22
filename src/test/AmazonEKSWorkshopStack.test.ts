@@ -1,13 +1,13 @@
 // import * as cdk from 'aws-cdk-lib';
 // import { Template } from 'aws-cdk-lib/assertions';
-// import * as Src from '../lib/src-stack';
+// import * as AmazonEKSWorkshop from '../lib/AmazonEKSWorkshop-stack';
 
 // example test. To run these tests, uncomment this file along with the
-// example resource in lib/src-stack.ts
+// example resource in lib/AmazonEKSWorkshop-stack.ts
 test('SQS Queue Created', () => {
 //   const app = new cdk.App();
 //     // WHEN
-//   const stack = new Src.AmazonEKSWorkshopStack(app, 'MyTestStack');
+//   const stack = new AmazonEKSWorkshop.AmazonEKSWorkshopStack(app, 'MyTestStack');
 //     // THEN
 //   const template = Template.fromStack(stack);
 

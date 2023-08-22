@@ -9,7 +9,7 @@ export class AmazonEKSWorkshopStack extends cdk.Stack {
     // The code that defines your stack goes here
 
     // example resource
-    // const queue = new sqs.Queue(this, 'SrcQueue', {
+    // const queue = new sqs.Queue(this, 'AmazonEKSWorkshopQueue', {
     //   visibilityTimeout: cdk.Duration.seconds(300)
     // });
   }

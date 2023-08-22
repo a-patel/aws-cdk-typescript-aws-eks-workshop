@@ -1,8 +1,8 @@
 {
-  "name": "src",
+  "name": "AmazonEKSWorkshop",
   "version": "0.1.0",
   "bin": {
-    "src": "bin/src.js"
+    "AmazonEKSWorkshop": "bin/AmazonEKSWorkshop.js"
   },
   "scripts": {
     "build": "tsc",
