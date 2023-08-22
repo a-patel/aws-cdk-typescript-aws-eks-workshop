@@ -2,8 +2,10 @@
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { AmazonEKSWorkshopStack } from '../lib/AmazonEKSWorkshop-stack';
+import { VpcStack } from '../lib/vpc-stack';
 
 const app = new cdk.App();
+
 new AmazonEKSWorkshopStack(app, 'AmazonEKSWorkshopStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
@@ -18,4 +20,9 @@ new AmazonEKSWorkshopStack(app, 'AmazonEKSWorkshopStack', {
   // env: { account: '123456789012', region: 'us-east-1' },
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+
+
+
 });
+
+const vpcStack = new VpcStack(app, 'AmazonEKSWorkshopVpcStack');
