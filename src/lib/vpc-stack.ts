@@ -10,13 +10,13 @@ interface VpcProps extends cdk.StackProps {
 }
 
 export class VpcStack extends cdk.Stack {
-  readonly vpc: Vpc;
-  readonly ingressSecurityGroup: SecurityGroup;
-  readonly egressSecurityGroup: SecurityGroup;
+  readonly vpc: ec2.Vpc;
   readonly publicSubnetIds: string[] = [];
   readonly privateSubnetIds: string[] = [];
   readonly databaseSubnetIds: string[] = [];
   readonly workerSubnetIds: string[] = [];
+  readonly ingressSecurityGroup: ec2.SecurityGroup;
+  readonly egressSecurityGroup: ec2.SecurityGroup;
 
   constructor(scope: Construct, id: string, props?: VpcProps) {
     super(scope, id, props);
