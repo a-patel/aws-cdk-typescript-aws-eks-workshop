@@ -1,22 +1,30 @@
 import  * as cdk from 'aws-cdk-lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { Peer, Port, SecurityGroup, SubnetType, IpAddresses, Vpc, PublicSubnet, NetworkAcl } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 
 
 // interface vpcStackProps extends cdk.StackProps {
 // }
 
-// const vpc = new ec2.Vpc(cdk.constr, 'EksCdkWorkshopVPC', {
-//   ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+// const vpc = new Vpc(cdk.constr, 'EksCdkWorkshopVPC', {
+//   ipAddresses: IpAddresses.cidr('10.0.0.0/16'),
 // });
 
+interface VpcProps extends cdk.StackProps {
+  prefixName: string, // <--- prefix name, for all resource
+  cidr: string, // <--- each VPC will need a Cidr
+  maxAzs?: number, // <--- optionally the number of Availability Zones can be provided; defaults to 2 in our particular case
+}
 
 export class VpcStack extends cdk.Stack {
-  readonly vpc: ec2.Vpc;
-  readonly ingressSecurityGroup: ec2.SecurityGroup;
-  readonly egressSecurityGroup: ec2.SecurityGroup;
+  readonly vpc: Vpc;
+  readonly ingressSecurityGroup: SecurityGroup;
+  readonly egressSecurityGroup: SecurityGroup;
+  readonly publicSubnetIds: string[] = [];
+  readonly privateSubnetIds: string[] = [];
+  readonly databaseSubnetIds: string[] = [];
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: VpcProps) {
     super(scope, id, props);
 
     // 👇 get Availability Zones, Region, Account
@@ -24,32 +32,36 @@ export class VpcStack extends cdk.Stack {
     console.log('region 👉', cdk.Stack.of(this).region);
     console.log('accountId 👉', cdk.Stack.of(this).account);
 
-    const vpc = new ec2.Vpc(this, "VPC", {
-      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
-      maxAzs: 2,
+    this.vpc = new Vpc(this, "VPC", {
+      vpcName: `${props?.prefixName}-vpc`,
+      ipAddresses: IpAddresses.cidr(props?.cidr!),
+      maxAzs: props?.maxAzs,
       natGateways: 2,
-      // subnetConfiguration: [
-      //   {
-      //     name: "EksCdkWorkshop-public-snet",
-      //     subnetType: ec2.SubnetType.PUBLIC,
-      //     cidrMask: 24,
-      //   },
-      //   {
-      //     name: "EksCdkWorkshop-private-snet",
-      //     subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-      //     cidrMask: 24,
-      //   },
-      //   {
-      //     name: "isolated-subnet",
-      //     subnetType: ec2.SubnetType.ISOLATED,
-      //     cidrMask: 24,
-      //   },
-      // ],
+      subnetConfiguration: [
+        {
+          name: `${props?.prefixName}-Public-snet`,
+          subnetType: SubnetType.PUBLIC,
+          cidrMask: 24,
+        },
+        {
+          name: `${props?.prefixName}-Private`,
+          subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+          cidrMask: 24,
+        },
+        {
+          name: "EksCdkWorkshop-database-snet",
+          subnetType: SubnetType.PRIVATE_ISOLATED,
+          cidrMask: 24,
+        },
+      ],
 
       
       createInternetGateway: true,
-    });
 
+      enableDnsHostnames: true,
+      enableDnsSupport: true,
+      // defaultInstanceTenancy: DefaultInstanceTenancy.DEFAULT,
+    });
 
   }
 }
