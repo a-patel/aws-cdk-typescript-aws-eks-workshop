@@ -100,7 +100,11 @@ export class VpcStack extends cdk.Stack {
     this.publicSubnetIds.push(subnet.subnetId);
   };
 
-  for (const subnet of this.vpc.privateSubnets) {
+  const privateSubnetsSelected = this.vpc.selectSubnets({
+    subnetGroupName: 'PrivateSubnet' 
+  });
+
+  for (const subnet of privateSubnetsSelected.subnets) {
     cdk.Aspects.of(subnet).add(
       new cdk.Tag(
         'Name',
@@ -133,6 +137,61 @@ export class VpcStack extends cdk.Stack {
   // Subnet Output
 
 
+
+
+
+    // for(let i = 0; i < 2-1; i++){
+    //   new PublicSubnet(this, "PublicSubnetA", {
+    //     // name: "EksCdkWorkshop-public-snet",
+    //     vpcId: vpc.vpcId,
+    //     cidrBlock: "10.0.0.0/24",
+    //     availabilityZone: vpc.availabilityZones[i],
+    //     mapPublicIpOnLaunch: true
+    //   });
+    // }
+
+    // const publicSubnetA = new PublicSubnet(this, "PublicSubnetA", {
+    //   // name: "EksCdkWorkshop-public-snet",
+    //   vpcId: vpc.vpcId,
+    //   cidrBlock: "10.0.0.0/24",
+    //   availabilityZone: vpc.availabilityZones[0],
+    //   mapPublicIpOnLaunch: true
+    // });
+
+
+
+
+
+    // const securityGroup = new SecurityGroup(this, 'sg', {
+    //   vpc: vpc
+    // });
+
+
+    // this.ingressSecurityGroup = new SecurityGroup(this, 'ingress-security-group', {
+    //   vpc: this.vpc,
+    //   allowAllOutbound: false,
+    //   securityGroupName: 'IngressSecurityGroup',
+    // });
+    
+    // this.ingressSecurityGroup.addIngressRule(Peer.ipv4('10.0.0.0/16'), Port.tcp(3306));
+    
+    
+    // this.egressSecurityGroup = new SecurityGroup(this, 'egress-security-group', {
+    //     vpc: this.vpc,
+    //     allowAllOutbound: false,
+    //     securityGroupName: 'EgressSecurityGroup',
+    // });
+
+    // this.egressSecurityGroup.addEgressRule(Peer.anyIpv4(), Port.tcp(80));
+
+
+
+
+    // const nacl = new NetworkAcl(this, 'MyApp-NetworkAcl', {
+    //   vpc,
+    //   networkAclName: 'IsolatedSubnetNACL',
+    //   subnetSelection: databaseSubnets,
+    // })
 
 
     // Add tags to all assets within this stack
