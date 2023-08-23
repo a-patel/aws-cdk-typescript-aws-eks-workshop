@@ -1,14 +1,8 @@
 import  * as cdk from 'aws-cdk-lib';
-import { Peer, Port, SecurityGroup, SubnetType, IpAddresses, Vpc, PublicSubnet, NetworkAcl } from 'aws-cdk-lib/aws-ec2';
+import { Peer, Port, SecurityGroup, SubnetType, IpAddresses, Vpc, PublicSubnet, NetworkAcl, SubnetFilter, ISubnet, SubnetSelection } from 'aws-cdk-lib/aws-ec2';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
-
-
-// interface vpcStackProps extends cdk.StackProps {
-// }
-
-// const vpc = new Vpc(cdk.constr, 'EksCdkWorkshopVPC', {
-//   ipAddresses: IpAddresses.cidr('10.0.0.0/16'),
-// });
+import { Helper } from './helper';
 
 interface VpcProps extends cdk.StackProps {
   prefixName: string, // <--- prefix name, for all resource
@@ -27,10 +21,10 @@ export class VpcStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: VpcProps) {
     super(scope, id, props);
 
-    // 👇 get Availability Zones, Region, Account
-    console.log('availability zones 👉', cdk.Stack.of(this).availabilityZones);
-    console.log('region 👉', cdk.Stack.of(this).region);
+    // get Account, Region, Availability Zones
     console.log('accountId 👉', cdk.Stack.of(this).account);
+    console.log('region 👉', cdk.Stack.of(this).region);
+    console.log('availability zones 👉', cdk.Stack.of(this).availabilityZones);
 
     this.vpc = new Vpc(this, "VPC", {
       vpcName: `${props?.prefixName}-vpc`,
@@ -39,17 +33,17 @@ export class VpcStack extends cdk.Stack {
       natGateways: 2,
       subnetConfiguration: [
         {
-          name: `${props?.prefixName}-Public-snet`,
+          name: 'PublicSubnet',
           subnetType: SubnetType.PUBLIC,
           cidrMask: 24,
         },
         {
-          name: `${props?.prefixName}-Private`,
+          name: 'PrivateSubnet',
           subnetType: SubnetType.PRIVATE_WITH_EGRESS,
           cidrMask: 24,
         },
         {
-          name: "EksCdkWorkshop-database-snet",
+          name: 'DatabaseSubnet',
           subnetType: SubnetType.PRIVATE_ISOLATED,
           cidrMask: 24,
         },
@@ -63,5 +57,89 @@ export class VpcStack extends cdk.Stack {
       // defaultInstanceTenancy: DefaultInstanceTenancy.DEFAULT,
     });
 
+    // VPC Tagging
+    cdk.Tags.of(this.vpc).add(`kubernetes.io/cluster/${props?.prefixName}-cluster`, 'shared');
+
+    // VPC Outputs
+    new cdk.CfnOutput(this, "VPCId", {
+      value: this.vpc.vpcId,
+      description: "VPC ID",
+      exportName: "VpcStack:vpcId"
+    });
+
+
+    /*****   Subnets   *****/
+    const publicSubnets = this.vpc.selectSubnets({
+      subnetType: SubnetType.PUBLIC,
+    })
+    
+    const privateSubnets = this.vpc.selectSubnets({
+      subnetType: SubnetType.PRIVATE_WITH_EGRESS,
+    })
+    
+    const databaseSubnets = this.vpc.selectSubnets({
+      subnetType: SubnetType.PRIVATE_ISOLATED,
+    })
+
+    // const allSubnets = [...this.publicSubnets, ...this.privateSubnets, ...this.isolatedSubnets];
+
+
+
+  // Subnet Tagging
+  for (const subnet of this.vpc.publicSubnets) {
+    cdk.Aspects.of(subnet).add(
+      new cdk.Tag(
+        'Name',
+        `${props?.prefixName}-Public-${Helper.getAZ(subnet.availabilityZone)}-snet`
+      )
+    );
+
+    cdk.Tags.of(subnet).add(`kubernetes.io/cluster/${props?.prefixName}-cluster`, 'shared');
+    cdk.Tags.of(subnet).add('kubernetes.io/role/elb', '1');
+
+    this.publicSubnetIds.push(subnet.subnetId);
+  };
+
+  for (const subnet of this.vpc.privateSubnets) {
+    cdk.Aspects.of(subnet).add(
+      new cdk.Tag(
+        'Name',
+        `${props?.prefixName}-Private-${Helper.getAZ(subnet.availabilityZone)}-snet`
+      )
+    );
+
+    cdk.Tags.of(subnet).add(`kubernetes.io/cluster/${props?.prefixName}-cluster`, 'shared');
+    cdk.Tags.of(subnet).add('kubernetes.io/role/internal-elb', '1');
+
+    this.privateSubnetIds.push(subnet.subnetId);
+  };
+
+  const databaseSubnetsSelected = this.vpc.selectSubnets({
+    subnetGroupName: 'DatabaseSubnet' 
+  });
+
+  for (const subnet of databaseSubnetsSelected.subnets) {
+    cdk.Aspects.of(subnet).add(
+      new cdk.Tag(
+        'Name',
+        `${props?.prefixName}-Database-${Helper.getAZ(subnet.availabilityZone)}-snet`
+      )
+    );
+
+    this.databaseSubnetIds.push(subnet.subnetId);
+  };
+
+
+  // Subnet Output
+
+
+
+
+    // Add tags to all assets within this stack
+    cdk.Tags.of(this).add("CreatedBy", "CDK", { priority: 300 })
+    cdk.Tags.of(this).add("Project", "AmazonEksCdkWorkshop", { priority: 300 })
+    cdk.Tags.of(this).add('Owner', 'Ashish Patel', { priority: 300 });
+
   }
+
 }
