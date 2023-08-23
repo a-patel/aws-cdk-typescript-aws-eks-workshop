@@ -3,7 +3,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { Helper } from './helper';
 
-interface VpcProps extends cdk.StackProps {
+interface VpcStackProps extends cdk.StackProps {
   prefixName: string, // <--- prefix name, for all resource
   cidr: string, // <--- each VPC will need a Cidr
   maxAzs?: number, // <--- optionally the number of Availability Zones can be provided; defaults to 2 in our particular case
@@ -18,7 +18,7 @@ export class VpcStack extends cdk.Stack {
   readonly ingressSecurityGroup: ec2.SecurityGroup;
   readonly egressSecurityGroup: ec2.SecurityGroup;
 
-  constructor(scope: Construct, id: string, props?: VpcProps) {
+  constructor(scope: Construct, id: string, props?: VpcStackProps) {
     super(scope, id, props);
 
     // get Account, Region, Availability Zones

@@ -6,22 +6,28 @@ import { VpcStack } from '../lib/vpc-stack';
 
 const app = new cdk.App();
 
-const vpcStack = new VpcStack(app, 'AmazonEksCdkWorkshopVpcStack', {
-  prefixName: 'EksCdkWorkshop',
-  cidr: '10.0.0.0/16',
-  maxAzs: 2,
-  
-  env: { 
-    account: process.env.CDK_DEFAULT_ACCOUNT, 
-    region: process.env.CDK_DEFAULT_REGION },
-  },
+const vpcStack = new VpcStack(
+  app,
+  "AmazonEksCdkWorkshopVpcStack",
+  {
+    prefixName: "EksCdkWorkshop",
+    cidr: "10.0.0.0/16",
+    maxAzs: 2,
+    env: {
+      account: process.env.CDK_DEFAULT_ACCOUNT,
+      region: process.env.CDK_DEFAULT_REGION,
+    },
+  }
   // description: 'VPC Stack'
 );
 
 const eksStack = new EksStack(app, 'AmazonEksCdkWorkshopEksStack', {
   prefixName: 'EksCdkWorkshop',
+  vpc: vpcStack.vpc,
   env: { 
     account: process.env.CDK_DEFAULT_ACCOUNT, 
     region: process.env.CDK_DEFAULT_REGION },
   }
 );
+
+app.synth();

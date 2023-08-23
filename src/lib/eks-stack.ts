@@ -5,18 +5,19 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 import { PhysicalName } from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 
-interface EksProps extends cdk.StackProps {
+interface EksStackProps extends cdk.StackProps {
   prefixName: string,
+  vpc: ec2.Vpc;
 }
 
 export class EksStack extends cdk.Stack {
 
-  constructor(scope: Construct, id: string, props?: EksProps) {
+  constructor(scope: Construct, id: string, props?: EksStackProps) {
     super(scope, id, props);
 
+    const vpc = props?.vpc;
     const primaryRegion = 'ap-south-1';
-
-
+    const clusterName = `${props?.prefixName}-cluster`
   }
 }
 
