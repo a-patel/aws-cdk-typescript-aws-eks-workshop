@@ -19,6 +19,7 @@ const vpcStack = new VpcStack(app, 'AmazonEksCdkWorkshopVpcStack', {
 );
 
 const eksStack = new EksStack(app, 'AmazonEksCdkWorkshopEksStack', {
+  prefixName: 'EksCdkWorkshop',
   env: { 
     account: process.env.CDK_DEFAULT_ACCOUNT, 
     region: process.env.CDK_DEFAULT_REGION },

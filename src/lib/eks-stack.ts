@@ -5,12 +5,17 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 import { PhysicalName } from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 
+interface EksProps extends cdk.StackProps {
+  prefixName: string,
+}
+
 export class EksStack extends cdk.Stack {
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: EksProps) {
     super(scope, id, props);
 
-    const primaryRegion = 'ap-northeast-2';
+    const primaryRegion = 'ap-south-1';
+
 
   }
 }
