@@ -139,17 +139,6 @@ export class VpcStack extends cdk.Stack {
 
 
 
-
-    // for(let i = 0; i < 2-1; i++){
-    //   new PublicSubnet(this, "PublicSubnetA", {
-    //     // name: "EksCdkWorkshop-public-snet",
-    //     vpcId: vpc.vpcId,
-    //     cidrBlock: "10.0.0.0/24",
-    //     availabilityZone: vpc.availabilityZones[i],
-    //     mapPublicIpOnLaunch: true
-    //   });
-    // }
-
     // const publicSubnetA = new PublicSubnet(this, "PublicSubnetA", {
     //   // name: "EksCdkWorkshop-public-snet",
     //   vpcId: vpc.vpcId,
