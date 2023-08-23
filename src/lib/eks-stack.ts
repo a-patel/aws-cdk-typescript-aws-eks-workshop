@@ -1,10 +1,26 @@
-import * as cdk from 'aws-cdk-lib';
+import  * as cdk from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as eks from 'aws-cdk-lib/aws-eks';
+import { PhysicalName } from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 
 export class EksStack extends cdk.Stack {
+
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const primaryRegion = 'ap-northeast-2';
 
   }
+}
+
+function createDeployRole(scope: Construct, id: string, cluster: eks.Cluster): iam.Role {
+  const role = new iam.Role(scope, id, {
+    roleName: PhysicalName.GENERATE_IF_NEEDED,
+    assumedBy: new iam.AccountRootPrincipal()
+  });
+  cluster.awsAuth.addMastersRole(role);
+
+  return role;
 }
