@@ -22,9 +22,9 @@ export class VpcStack extends cdk.Stack {
     super(scope, id, props);
 
     // get Account, Region, Availability Zones
-    console.log('accountId 👉', cdk.Stack.of(this).account);
-    console.log('region 👉', cdk.Stack.of(this).region);
-    console.log('availability zones 👉', cdk.Stack.of(this).availabilityZones);
+    console.log('accountId: ', cdk.Stack.of(this).account);
+    console.log('region: ', cdk.Stack.of(this).region);
+    console.log('availability zones: ', cdk.Stack.of(this).availabilityZones);
 
     this.vpc = new ec2.Vpc(this, "VPC", {
       vpcName: `${props?.prefixName}-vpc`,
@@ -71,6 +71,13 @@ export class VpcStack extends cdk.Stack {
       description: "VPC ID",
       exportName: "VpcStack:vpcId"
     });
+
+    new cdk.CfnOutput(this, 'VpcCidr', {
+      description: 'VPC CIDR',
+      exportName: `vpc-cidr`,
+      value: this.vpc.vpcCidrBlock,
+    })
+
 
 
     /*****   Subnets   *****/
