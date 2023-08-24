@@ -11,22 +11,17 @@ interface EksStackProps extends cdk.StackProps {
 }
 
 export class EksStack extends cdk.Stack {
+  readonly cluster: eks.Cluster;
 
   constructor(scope: Construct, id: string, props?: EksStackProps) {
     super(scope, id, props);
 
     const vpc = props?.vpc;
     const clusterName = `${props?.prefixName}-cluster`
-    const nodegroupName = `${props?.prefixName}-nodegroup`
+    const nodegroupName = `${props?.prefixName}-App-nodegroup`
 
-    const clusterAdmin = new iam.Role(this, "AdminRole", {
-      assumedBy: new iam.AccountRootPrincipal(),
-    });
-
-    // IAM role for our EC2 worker nodes
-    const workerRole = new iam.Role(this, 'EKSWorkerRole', {
-      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
-    });
+    const clusterAdminRole = this.createClusterRole(`${props?.prefixName}-ClusterRole`);
+    const workerRole = this.createNodegroupRole(`${props?.prefixName}-App-WorkerRole`);
 
     const cluster = new eks.Cluster(this, clusterName, {
       clusterName: clusterName,
@@ -36,7 +31,7 @@ export class EksStack extends cdk.Stack {
         { subnetType: ec2.SubnetType.PUBLIC },
         { subnetGroupName: "PrivateSubnet" },
       ],
-      mastersRole: clusterAdmin,
+      mastersRole: clusterAdminRole,
       defaultCapacity: 0,
 
       endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
@@ -58,15 +53,12 @@ export class EksStack extends cdk.Stack {
     });
 
 
-    const primaryRegion = 'ap-south-1';
-    cluster.addAutoScalingGroupCapacity('spot-group', {
-      instanceType: new ec2.InstanceType('t2.medium'),
-      spotPrice: cdk.Stack.of(this).region==primaryRegion ? '0.248' : '0.192',
-    });
-
-
-
-
+    // const primaryRegion = 'ap-south-1';
+    // cluster.addAutoScalingGroupCapacity(`${props?.prefixName}-App-spotnodegroup`, {
+    //   autoScalingGroupName: `${props?.prefixName}-App-spotnodegroup`,
+    //   instanceType: new ec2.InstanceType('t2.medium'),
+    //   spotPrice: cdk.Stack.of(this).region==primaryRegion ? '0.248' : '0.192',
+    // });
 
 
 
@@ -74,9 +66,34 @@ export class EksStack extends cdk.Stack {
     cdk.Tags.of(this).add("CreatedBy", "CDK", { priority: 300 })
     cdk.Tags.of(this).add("Project", "AmazonEksCdkWorkshop", { priority: 300 })
     cdk.Tags.of(this).add('Owner', 'Ashish Patel', { priority: 300 });
+  }
 
+  /* IAM Roles */
+  // Create Cluster IAM role
+  public createClusterRole(id: string): iam.Role {
+    const role = new iam.Role(this, id, {
+      assumedBy: new iam.AccountRootPrincipal(),
+    });
+
+    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSClusterPolicy'));
+
+    return role;
+  }
+
+  // Create Nodegroup IAM role
+  public createNodegroupRole(id: string): iam.Role {
+    const role = new iam.Role(this, id, {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+    });
+
+    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKSWorkerNodePolicy'));
+    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'));
+    role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEKS_CNI_Policy'));
+
+    return role;
   }
 }
+
 
 function createDeployRole(scope: Construct, id: string, cluster: eks.Cluster): iam.Role {
   const role = new iam.Role(scope, id, {
