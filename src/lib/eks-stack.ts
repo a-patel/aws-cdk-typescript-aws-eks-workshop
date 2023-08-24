@@ -23,7 +23,7 @@ export class EksStack extends cdk.Stack {
     const clusterAdminRole = this.createClusterRole(`${props?.prefixName}-ClusterRole`);
     const workerRole = this.createNodegroupRole(`${props?.prefixName}-App-WorkerRole`);
 
-    const cluster = new eks.Cluster(this, clusterName, {
+    this.cluster = new eks.Cluster(this, clusterName, {
       clusterName: clusterName,
       version: eks.KubernetesVersion.V1_27,
       vpc: vpc,
@@ -38,7 +38,7 @@ export class EksStack extends cdk.Stack {
     });
 
 
-    cluster.addNodegroupCapacity(nodegroupName, {
+    this.cluster.addNodegroupCapacity(nodegroupName, {
       nodegroupName: nodegroupName,
       nodeRole: workerRole,
       subnets: { subnetGroupName: "PrivateSubnet" },
@@ -54,7 +54,7 @@ export class EksStack extends cdk.Stack {
 
 
     // const primaryRegion = 'ap-south-1';
-    // cluster.addAutoScalingGroupCapacity(`${props?.prefixName}-App-spotnodegroup`, {
+    // this.cluster.addAutoScalingGroupCapacity(`${props?.prefixName}-App-spotnodegroup`, {
     //   autoScalingGroupName: `${props?.prefixName}-App-spotnodegroup`,
     //   instanceType: new ec2.InstanceType('t2.medium'),
     //   spotPrice: cdk.Stack.of(this).region==primaryRegion ? '0.248' : '0.192',

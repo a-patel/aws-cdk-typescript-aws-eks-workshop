@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { EksStack } from '../lib/eks-stack';
 import { VpcStack } from '../lib/vpc-stack';
+import { EksStack } from '../lib/eks-stack';
+import { EksNodegroupStack } from '../lib/eks-nodegroup-stack';
 
 const app = new cdk.App();
 
@@ -30,5 +31,15 @@ const eksStack = new EksStack(app, 'AmazonEksCdkWorkshopEksStack', {
   vpc: vpcStack.vpc,
   env: env,
 });
+
+const eksNodegroupStack = new EksNodegroupStack(
+  app,
+  "AmazonEksCdkWorkshopEksNgJobsStack",
+  {
+    prefixName: "EksCdkWorkshop",
+    cluster: eksStack.cluster,
+    env: env,
+  }
+);
 
 app.synth();
