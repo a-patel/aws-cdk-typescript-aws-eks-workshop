@@ -16,8 +16,65 @@ export class EksStack extends cdk.Stack {
     super(scope, id, props);
 
     const vpc = props?.vpc;
-    const primaryRegion = 'ap-south-1';
     const clusterName = `${props?.prefixName}-cluster`
+    const nodegroupName = `${props?.prefixName}-nodegroup`
+
+    const clusterAdmin = new iam.Role(this, "AdminRole", {
+      assumedBy: new iam.AccountRootPrincipal(),
+    });
+
+    // IAM role for our EC2 worker nodes
+    const workerRole = new iam.Role(this, 'EKSWorkerRole', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com')
+    });
+
+    const cluster = new eks.Cluster(this, clusterName, {
+      clusterName: clusterName,
+      version: eks.KubernetesVersion.V1_27,
+      vpc: vpc,
+      vpcSubnets: [
+        { subnetType: ec2.SubnetType.PUBLIC },
+        { subnetGroupName: "PrivateSubnet" },
+      ],
+      mastersRole: clusterAdmin,
+      defaultCapacity: 0,
+
+      endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
+    });
+
+
+    cluster.addNodegroupCapacity(nodegroupName, {
+      nodegroupName: nodegroupName,
+      nodeRole: workerRole,
+      subnets: { subnetGroupName: "PrivateSubnet" },
+
+      instanceTypes: [new ec2.InstanceType("t2.medium")],
+      minSize: 1,
+      maxSize: 2,
+      desiredSize: 1,
+      diskSize: 20,
+      capacityType: eks.CapacityType.ON_DEMAND,
+      amiType: eks.NodegroupAmiType.AL2_X86_64,
+    });
+
+
+    const primaryRegion = 'ap-south-1';
+    cluster.addAutoScalingGroupCapacity('spot-group', {
+      instanceType: new ec2.InstanceType('t2.medium'),
+      spotPrice: cdk.Stack.of(this).region==primaryRegion ? '0.248' : '0.192',
+    });
+
+
+
+
+
+
+
+    // Add tags to all assets within this stack
+    cdk.Tags.of(this).add("CreatedBy", "CDK", { priority: 300 })
+    cdk.Tags.of(this).add("Project", "AmazonEksCdkWorkshop", { priority: 300 })
+    cdk.Tags.of(this).add('Owner', 'Ashish Patel', { priority: 300 });
+
   }
 }
 

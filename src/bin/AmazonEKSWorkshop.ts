@@ -9,9 +9,8 @@ const app = new cdk.App();
 // const account = app.node.tryGetContext('account') || process.env.CDK_INTEG_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT;
 const env = {account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION};
 
-console.log('accountId: ', cdk.Stack.of(app).account);
-console.log('region: ', cdk.Stack.of(app).region);
-console.log('availability zones: ', cdk.Stack.of(app).availabilityZones);
+console.log('accountId: ', env.account);
+console.log('region: ', env.region);
 
 
 const vpcStack = new VpcStack(
@@ -29,7 +28,7 @@ const vpcStack = new VpcStack(
 const eksStack = new EksStack(app, 'AmazonEksCdkWorkshopEksStack', {
   prefixName: 'EksCdkWorkshop',
   vpc: vpcStack.vpc,
-  env: env
-);
+  env: env,
+});
 
 app.synth();
