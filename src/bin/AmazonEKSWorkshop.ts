@@ -22,15 +22,17 @@ const vpcStack = new VpcStack(
     cidr: "10.0.0.0/16",
     maxAzs: 2,
     env: env,
+    description: "EksCdkWorkshop VPC Stack"
   }
-  // description: 'VPC Stack'
 );
 
 const eksStack = new EksStack(app, 'AmazonEksCdkWorkshopEksStack', {
   prefixName: 'EksCdkWorkshop',
   vpc: vpcStack.vpc,
   env: env,
+  description: "EksCdkWorkshop EKS Cluster Stack"
 });
+eksStack.addDependency(vpcStack);
 
 const eksNodegroupStack = new EksNodegroupStack(
   app,
@@ -40,7 +42,9 @@ const eksNodegroupStack = new EksNodegroupStack(
     cluster: eksStack.cluster,
     workerRoleName: eksStack.workerRole.roleName,
     env: env,
-  }
+  description: "EksCdkWorkshop EKS Nodegroup Stack"
+}
 );
+eksNodegroupStack.node.addDependency(eksStack);
 
 app.synth();
