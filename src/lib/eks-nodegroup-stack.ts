@@ -8,6 +8,7 @@ import { Construct } from 'constructs';
 interface EksNodegroupStackProps extends cdk.StackProps {
   prefixName: string,
   cluster: eks.Cluster;
+  workerRoleName: string;
 }
 
 export class EksNodegroupStack extends cdk.Stack {
@@ -17,9 +18,17 @@ export class EksNodegroupStack extends cdk.Stack {
     const cluster = props?.cluster!;
     const nodegroupName = `${props?.prefixName}-Jobs-nodegroup`;
 
-    const workerRole = this.createNodegroupRole(
-      `${props?.prefixName}-Jobs-WorkerRole`
+    // const workerRole = this.createNodegroupRole(
+    //   `${props?.prefixName}-Jobs-WorkerRole`
+    // );
+    // 👇 import existing IAM Role
+    const workerRole = iam.Role.fromRoleArn(
+      this,
+      props?.workerRoleName!,
+      `arn:aws:iam::${cdk.Stack.of(this).account}:role/${props?.workerRoleName}`,
+      {mutable: false},
     );
+
 
     const nodegroup = new eks.Nodegroup(this, nodegroupName, {
       cluster: cluster,
@@ -40,26 +49,5 @@ export class EksNodegroupStack extends cdk.Stack {
     cdk.Tags.of(this).add("CreatedBy", "CDK", { priority: 300 });
     cdk.Tags.of(this).add("Project", "AmazonEksCdkWorkshop", { priority: 300 });
     cdk.Tags.of(this).add("Owner", "Ashish Patel", { priority: 300 });
-  }
-
-  // Create Nodegroup IAM role
-  public createNodegroupRole(id: string): iam.Role {
-    const role = new iam.Role(this, id, {
-      assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-    });
-
-    role.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSWorkerNodePolicy")
-    );
-    role.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "AmazonEC2ContainerRegistryReadOnly"
-      )
-    );
-    role.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonEKS_CNI_Policy")
-    );
-
-    return role;
   }
 }

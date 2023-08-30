@@ -12,6 +12,7 @@ interface EksStackProps extends cdk.StackProps {
 
 export class EksStack extends cdk.Stack {
   readonly cluster: eks.Cluster;
+  readonly workerRole: iam.Role;
 
   constructor(scope: Construct, id: string, props?: EksStackProps) {
     super(scope, id, props);
@@ -21,7 +22,7 @@ export class EksStack extends cdk.Stack {
     const nodegroupName = `${props?.prefixName}-App-nodegroup`
 
     const clusterAdminRole = this.createClusterRole(`${props?.prefixName}-ClusterRole`);
-    const workerRole = this.createNodegroupRole(`${props?.prefixName}-App-WorkerRole`);
+    this.workerRole = this.createNodegroupRole(`${props?.prefixName}-WorkerRole`);
 
     this.cluster = new eks.Cluster(this, clusterName, {
       clusterName: clusterName,
@@ -40,7 +41,7 @@ export class EksStack extends cdk.Stack {
 
     this.cluster.addNodegroupCapacity(nodegroupName, {
       nodegroupName: nodegroupName,
-      nodeRole: workerRole,
+      nodeRole: this.workerRole,
       subnets: { subnetGroupName: "PrivateSubnet" },
 
       instanceTypes: [new ec2.InstanceType("t2.medium")],

@@ -38,6 +38,7 @@ const eksNodegroupStack = new EksNodegroupStack(
   {
     prefixName: "EksCdkWorkshop",
     cluster: eksStack.cluster,
+    workerRoleName: eksStack.workerRole.roleName,
     env: env,
   }
 );
