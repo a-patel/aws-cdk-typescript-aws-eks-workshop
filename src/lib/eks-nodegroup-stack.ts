@@ -1,3 +1,5 @@
+/*
+// Current Limitation: should be defined in the scope of the AmazonEksCdkWorkshopEksStack stack to prevent circular dependencies
 import  * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -51,3 +53,4 @@ export class EksNodegroupStack extends cdk.Stack {
     cdk.Tags.of(this).add("Owner", "Ashish Patel", { priority: 300 });
   }
 }
+*/

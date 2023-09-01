@@ -20,6 +20,7 @@ export class EksStack extends cdk.Stack {
     const vpc = props?.vpc;
     const clusterName = `${props?.prefixName}-cluster`
     const nodegroupName = `${props?.prefixName}-App-nodegroup`
+    const nodegroup2Name = `${props?.prefixName}-Jobs-nodegroup`
 
     const clusterAdminRole = this.createClusterRole(`${props?.prefixName}-ClusterRole`);
     this.workerRole = this.createNodegroupRole(`${props?.prefixName}-WorkerRole`);
@@ -38,7 +39,7 @@ export class EksStack extends cdk.Stack {
       endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
     });
 
-
+    // Nodegroup-1
     this.cluster.addNodegroupCapacity(nodegroupName, {
       nodegroupName: nodegroupName,
       nodeRole: this.workerRole,
@@ -53,6 +54,21 @@ export class EksStack extends cdk.Stack {
       amiType: eks.NodegroupAmiType.AL2_X86_64,
     });
 
+
+    // Nodegroup-1
+    this.cluster.addNodegroupCapacity(nodegroup2Name, {
+      nodegroupName: nodegroup2Name,
+      nodeRole: this.workerRole,
+      subnets: { subnetGroupName: "PrivateSubnet" },
+
+      instanceTypes: [new ec2.InstanceType("t2.medium")],
+      minSize: 1,
+      maxSize: 2,
+      desiredSize: 1,
+      diskSize: 20,
+      capacityType: eks.CapacityType.ON_DEMAND,
+      amiType: eks.NodegroupAmiType.AL2_X86_64,
+    });
 
     // const primaryRegion = 'ap-south-1';
     // this.cluster.addAutoScalingGroupCapacity(`${props?.prefixName}-App-spotnodegroup`, {

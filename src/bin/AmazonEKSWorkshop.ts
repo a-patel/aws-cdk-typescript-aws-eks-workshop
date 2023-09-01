@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { VpcStack } from '../lib/vpc-stack';
 import { EksStack } from '../lib/eks-stack';
-import { EksNodegroupStack } from '../lib/eks-nodegroup-stack';
+// import { EksNodegroupStack } from '../lib/eks-nodegroup-stack';
 
 const app = new cdk.App();
 
@@ -34,6 +34,8 @@ const eksStack = new EksStack(app, 'AmazonEksCdkWorkshopEksStack', {
 });
 eksStack.addDependency(vpcStack);
 
+/*
+// Current Limitation: should be defined in the scope of the AmazonEksCdkWorkshopEksStack stack to prevent circular dependencies
 const eksNodegroupStack = new EksNodegroupStack(
   app,
   "AmazonEksCdkWorkshopEksNgJobsStack",
@@ -46,5 +48,6 @@ const eksNodegroupStack = new EksNodegroupStack(
 }
 );
 eksNodegroupStack.node.addDependency(eksStack);
+*/
 
 app.synth();
