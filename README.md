@@ -3,9 +3,9 @@
 
 
 
-Read more about [Terraform - Provision Amazon EKS Cluster using Terraform](https://medium.com/devops-mojo/terraform-provision-amazon-eks-cluster-using-terraform-deploy-create-aws-eks-kubernetes-cluster-tf-4134ab22c594) on [DevOps Mojo](https://medium.com/devops-mojo)
+Read more about DevOps tools on [DevOps Mojo](https://medium.com/devops-mojo)
 
-
+[Awesome Cloud](https://medium.com/awesome-cloud) - AWS blogs! A must-read publication for aspiring AWS Architects, Developers & DevOps enthusiasts!
 
 
 
