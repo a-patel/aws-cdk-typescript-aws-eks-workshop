@@ -83,6 +83,7 @@ export class EksStack extends cdk.Stack {
     cdk.Tags.of(this).add("CreatedBy", "CDK", { priority: 300 })
     cdk.Tags.of(this).add("Project", "AmazonEksCdkWorkshop", { priority: 300 })
     cdk.Tags.of(this).add('Owner', 'Ashish Patel', { priority: 300 });
+    cdk.Tags.of(this).add("CostCenter", "ABCD1234", { priority: 300 });
   }
 
   /* IAM Roles */
